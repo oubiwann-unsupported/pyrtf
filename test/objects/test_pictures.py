@@ -18,6 +18,8 @@ class PictureTestCase(RTFTestCase):
                         'image each and every time like;' )
 
         image = Image( 'examples/image.jpg' )
+        assert image.width == 252
+        assert image.height == 72
         section.append( Paragraph( image ) )
 
         section.append( 'Or you can use the image object to convert the image and then '
