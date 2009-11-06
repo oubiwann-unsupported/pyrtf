@@ -108,13 +108,13 @@ class Image( RawCode ) :
 
         pict_type = self.PICT_TYPES[ file_name[ -3 : ].lower() ]
         if pict_type == self.PNG_LIB :
-            width, height = _get_png_dimensions( fin.read( 100 ) )
+            self.width, self.height = _get_png_dimensions( fin.read( 100 ) )
         else :
-            width, height = _get_jpg_dimensions( fin )
+            self.width, self.height = _get_jpg_dimensions( fin )
 
         codes = [ pict_type,
-                  'picwgoal%s' % (width  * 20),
-                  'pichgoal%s' % (height * 20) ]
+                  'picwgoal%s' % (self.width  * 20),
+                  'pichgoal%s' % (self.height * 20) ]
         for kwarg, code, default in [ ( 'scale_x',     'scalex', '100' ),
                                       ( 'scale_y',     'scaley', '100' ),
                                       ( 'crop_left',   'cropl',    '0' ),
