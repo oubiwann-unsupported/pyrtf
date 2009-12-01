@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 from rtfng.utils import RTFTestCase
 from rtfng.Elements import Document, StyleSheet
-from rtfng.PropertySets import ShadingPropertySet, TextPropertySet
+from rtfng.PropertySets import ShadingPropertySet, TextPropertySet, ParagraphPropertySet
 from rtfng.Styles import TextStyle
 
 from rtfng.document.character import B, I, U, TEXT, Text
@@ -99,4 +99,23 @@ class CharacterAPITestCase(RTFTestCase):
 
         t = U('abc')
         t = U('abc', 'def')
+
+    def test_TextPropertySet(self):
+        style = StyleSheet()
+        blue = TextPropertySet(colour=style.Colours.Blue)
+        red = blue.Copy()
+        red.colour = style.Colours.Red
+        
+        # Confirm that the copies are independent objects.
+        assert blue.colour == style.Colours.Blue
+        assert red.colour == style.Colours.Red
+
+    def test_ParagraphPropertySet(self):
+        left = ParagraphPropertySet(ParagraphPropertySet.LEFT)
+        center = left.Copy()
+        center.Alignment = ParagraphPropertySet.CENTER
+        
+        # Confirm that the copies are independent objects.
+        assert left.Alignment == ParagraphPropertySet.LEFT
+        assert center.Alignment == ParagraphPropertySet.CENTER
 
