@@ -2,7 +2,7 @@
 from rtfng.utils import RTFTestCase
 from rtfng.Elements import Document, StyleSheet
 from rtfng.PropertySets import ShadingPropertySet, TextPropertySet, ParagraphPropertySet
-from rtfng.Styles import TextStyle
+from rtfng.Styles import ParagraphStyle, TextStyle
 
 from rtfng.document.character import B, I, U, TEXT, Text
 from rtfng.document.section import Section
@@ -118,4 +118,20 @@ class CharacterAPITestCase(RTFTestCase):
         # Confirm that the copies are independent objects.
         assert left.Alignment == ParagraphPropertySet.LEFT
         assert center.Alignment == ParagraphPropertySet.CENTER
+
+    def test_ParagraphStyle(self):
+        
+        # Normal constructor.
+        style = StyleSheet()
+        normalText = TextStyle(TextPropertySet(style.Fonts.Arial, 22))
+        ps = ParagraphStyle('Normal', normalText.Copy())
+        assert ps.name == 'Normal'
+
+        # Not sending font to constructor.
+        noStyle = TextStyle(TextPropertySet())
+        self.assertRaises(Exception, ParagraphStyle, 'Normal', noStyle)
+
+        # Not sending size to constructor.
+        fontOnlyStyle = TextStyle(TextPropertySet(style.Fonts.Arial))
+        self.assertRaises(Exception, ParagraphStyle, 'Normal', fontOnlyStyle)
 
