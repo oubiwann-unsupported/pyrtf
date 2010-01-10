@@ -1,7 +1,10 @@
 #!/usr/bin/env python
+from StringIO import StringIO
+
 from rtfng.utils import RTFTestCase
 from rtfng.Elements import Document, StyleSheet
 from rtfng.PropertySets import BorderPropertySet, ShadingPropertySet, TextPropertySet, ParagraphPropertySet
+from rtfng.Renderer import Renderer
 from rtfng.Styles import ParagraphStyle, TextStyle
 
 from rtfng.document.character import B, I, U, TEXT, Text
@@ -150,4 +153,30 @@ class CharacterAPITestCase(RTFTestCase):
         # Not sending size to constructor.
         fontOnlyStyle = TextStyle(TextPropertySet(style.Fonts.Arial))
         self.assertRaises(Exception, ParagraphStyle, 'Normal', fontOnlyStyle)
+
+    def test_CustomElementInsidePara(self):
+
+        # It's just too hard to write a standard test with a custom renderer.
+        doc, section, styles = RTFTestCase.initializeDoc()
+        p = Paragraph()
+        p.append('This is a standard paragraph with the default style.')
+        class CustomClass(object):
+            pass
+        p.append(CustomClass())
+        section.append(p)
+        
+        # Define renderer with custom element support.
+        specialString = "ABC I'm unique"
+        def customElementWriter(renderer, element):
+            renderer._write(specialString)
+        r = Renderer(write_custom_element_callback=customElementWriter)
+        
+        # Render with custom element.
+        result = StringIO()
+        r.Write(doc, result)
+        testData = result.getvalue()
+        result.close()
+        
+        # Confirm generate result has custom rendering.
+        assert specialString in testData
 
