@@ -38,7 +38,7 @@ class TableTestCase(RTFTestCase):
                        TabPropertySet.DEFAULT_WIDTH * 3 )
         c1 = Cell( Paragraph( 'Row One, Cell One'   ) )
         c2 = Cell( Paragraph( 'Row One, Cell Two'   ) )
-        c3 = Cell( Paragraph( 'Row One, Cell Three' ) )
+        c3 = Cell('Row One, Cell Three', ' Testing mult. strings in cell')
         table.AddRow( c1, c2, c3 )
 
         c1 = Cell( Paragraph( styles.ParagraphStyles.Heading2, 'Heading2 Style'   ) )
