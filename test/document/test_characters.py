@@ -203,3 +203,16 @@ class CharacterAPITestCase(RTFTestCase):
         # Confirm generate result has custom rendering.
         assert specialString in testData
 
+    def test_ExceptionOnUnknownElement(self):
+
+        # Create document with unknown element type.
+        doc, section, styles = RTFTestCase.initializeDoc()
+        class CustomClass(object):
+            pass
+        section.append(CustomClass())
+        
+        # Try to render.
+        r = Renderer()
+        result = StringIO()
+        self.assertRaises(Exception, r.Write, doc, result)
+
