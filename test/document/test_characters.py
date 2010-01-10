@@ -7,7 +7,7 @@ from rtfng.PropertySets import BorderPropertySet, ShadingPropertySet, TextProper
 from rtfng.Renderer import Renderer
 from rtfng.Styles import ParagraphStyle, TextStyle
 
-from rtfng.document.base import TAB, LINE
+from rtfng.document.base import TAB, LINE, RawCode
 from rtfng.document.character import B, I, Inline, U, TEXT, Text
 from rtfng.document.section import Section
 from rtfng.document.paragraph import Paragraph
@@ -111,11 +111,11 @@ class CharacterTestCase(RTFTestCase):
     def make_charInline():
         doc, section, styles = RTFTestCase.initializeDoc()
         p = Paragraph()
-        p.append(Inline('First Inline Element'))
+        p.append(Inline('Simple Inline Element'))
         section.append(p)
         
         p = Paragraph()
-        p.append(Inline('First Inline Element', LINE, 'Second Inline Element'))
+        p.append(Inline('First Inline Element', LINE, 'Second Inline Element', RawCode(r'\tab '), 'After tab'))
         section.append(p)
         return doc
     make_charInline = staticmethod(make_charInline)
