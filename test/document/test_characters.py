@@ -154,6 +154,29 @@ class CharacterAPITestCase(RTFTestCase):
         fontOnlyStyle = TextStyle(TextPropertySet(style.Fonts.Arial))
         self.assertRaises(Exception, ParagraphStyle, 'Normal', fontOnlyStyle)
 
+    def test_CustomElementOutsidePara(self):
+
+        # It's just too hard to write a standard test with a custom renderer.
+        doc, section, styles = RTFTestCase.initializeDoc()
+        class CustomClass(object):
+            pass
+        section.append(CustomClass())
+        
+        # Define renderer with custom element support.
+        specialString = "ABC I'm unique"
+        def customElementWriter(renderer, element):
+            renderer._write(specialString)
+        r = Renderer(write_custom_element_callback=customElementWriter)
+        
+        # Render with custom element.
+        result = StringIO()
+        r.Write(doc, result)
+        testData = result.getvalue()
+        result.close()
+        
+        # Confirm generate result has custom rendering.
+        assert specialString in testData
+
     def test_CustomElementInsidePara(self):
 
         # It's just too hard to write a standard test with a custom renderer.
