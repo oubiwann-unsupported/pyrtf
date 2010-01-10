@@ -7,6 +7,7 @@ from rtfng.PropertySets import BorderPropertySet, ShadingPropertySet, TextProper
 from rtfng.Renderer import Renderer
 from rtfng.Styles import ParagraphStyle, TextStyle
 
+from rtfng.document.base import TAB
 from rtfng.document.character import B, I, U, TEXT, Text
 from rtfng.document.section import Section
 from rtfng.document.paragraph import Paragraph
@@ -90,6 +91,20 @@ class CharacterTestCase(RTFTestCase):
     make_charFrame = staticmethod(make_charFrame)
 
     def test_charFrame(self):
+        self.doTest()
+
+
+    def make_charTab():
+        doc, section, styles = RTFTestCase.initializeDoc()
+        p = Paragraph()
+        p.append('Before tab')
+        p.append(Text(TAB))
+        p.append('After tab')
+        section.append(p)
+        return doc
+    make_charTab = staticmethod(make_charTab)
+
+    def test_charTab(self):
         self.doTest()
 
 
