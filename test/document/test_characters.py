@@ -114,8 +114,14 @@ class CharacterTestCase(RTFTestCase):
         p.append(Inline('Simple Inline Element'))
         section.append(p)
         
+        # Test various element types inside Inline element.
         p = Paragraph()
-        p.append(Inline('First Inline Element', LINE, 'Second Inline Element', RawCode(r'\tab '), 'After tab'))
+        p.append(Inline('First Inline Element',
+                        TAB,
+                        'Second Inline Element',
+                        RawCode(r'\tab '),
+                        'After tab'
+                       ))
         section.append(p)
         return doc
     make_charInline = staticmethod(make_charInline)
