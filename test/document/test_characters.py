@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 from rtfng.utils import RTFTestCase
 from rtfng.Elements import Document, StyleSheet
-from rtfng.PropertySets import ShadingPropertySet, TextPropertySet, ParagraphPropertySet
+from rtfng.PropertySets import BorderPropertySet, ShadingPropertySet, TextPropertySet, ParagraphPropertySet
 from rtfng.Styles import ParagraphStyle, TextStyle
 
 from rtfng.document.character import B, I, U, TEXT, Text
@@ -74,6 +74,22 @@ class CharacterTestCase(RTFTestCase):
 
     def test_charUnicode(self):
         self.doTest()
+
+
+    def make_charFrame():
+        doc, section, styles = RTFTestCase.initializeDoc()
+        p = Paragraph()
+        thinEdge = BorderPropertySet(width=20, style=BorderPropertySet.SINGLE, colour=styles.Colours.Blue)
+        textWithFrame = TextPropertySet(frame=thinEdge)
+        p.append(Text('This tests frame drawn around text.', textWithFrame))
+        section.append(p)
+        return doc
+    make_charFrame = staticmethod(make_charFrame)
+
+    def test_charFrame(self):
+        self.doTest()
+
+
 
 
 class CharacterAPITestCase(RTFTestCase):
