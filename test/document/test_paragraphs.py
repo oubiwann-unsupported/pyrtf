@@ -194,3 +194,37 @@ class ParagraphTestCase(RTFTestCase):
         assert p1[0:-1] == p2[0:-1]
         assert p2[0:-1] == p3[0:-1]
 
+    def make_spaceBetweenLines():
+        doc, section, styles = RTFTestCase.initializeDoc()
+        
+        para_props = ParagraphPropertySet()
+        quarterInch = 1440/2
+        para_props.SetSpaceBetweenLines(quarterInch)
+        p = Paragraph(para_props)
+        p.append(
+            'Paragraph One',
+            LINE,
+            'Second line',
+            LINE,
+            'Third line',
+        )
+        section.append(p)
+
+        para_props = ParagraphPropertySet()
+        para_props.SetSpaceBetweenLines(-quarterInch)
+        p = Paragraph(para_props)
+        p.append(
+            'Paragraph Two',
+            LINE,
+            'Second line',
+            LINE,
+            'Third line',
+        )
+        section.append(p)
+
+        return doc
+    make_spaceBetweenLines = staticmethod(make_spaceBetweenLines)
+
+    def test_spaceBetweenLines(self):
+        self.doTest()
+

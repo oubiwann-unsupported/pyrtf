@@ -1,10 +1,14 @@
 #!/usr/bin/env python
+from StringIO import StringIO
+
 from rtfng.utils import RTFTestCase
 from rtfng.Elements import Document, StyleSheet
-from rtfng.PropertySets import ShadingPropertySet, TextPropertySet
-from rtfng.Styles import TextStyle
+from rtfng.PropertySets import BorderPropertySet, ShadingPropertySet, TextPropertySet, ParagraphPropertySet
+from rtfng.Renderer import Renderer
+from rtfng.Styles import ParagraphStyle, TextStyle
 
-from rtfng.document.character import B, I, U, TEXT, Text
+from rtfng.document.base import TAB, LINE, RawCode
+from rtfng.document.character import B, I, Inline, U, TEXT, Text
 from rtfng.document.section import Section
 from rtfng.document.paragraph import Paragraph
 
@@ -76,6 +80,58 @@ class CharacterTestCase(RTFTestCase):
         self.doTest()
 
 
+    def make_charFrame():
+        doc, section, styles = RTFTestCase.initializeDoc()
+        p = Paragraph()
+        thinEdge = BorderPropertySet(width=20, style=BorderPropertySet.SINGLE, colour=styles.Colours.Blue)
+        textWithFrame = TextPropertySet(frame=thinEdge)
+        p.append(Text('This tests frame drawn around text.', textWithFrame))
+        section.append(p)
+        return doc
+    make_charFrame = staticmethod(make_charFrame)
+
+    def test_charFrame(self):
+        self.doTest()
+
+
+    def make_charTab():
+        doc, section, styles = RTFTestCase.initializeDoc()
+        p = Paragraph()
+        p.append('Before tab')
+        p.append(Text(TAB))
+        p.append('After tab')
+        section.append(p)
+        return doc
+    make_charTab = staticmethod(make_charTab)
+
+    def test_charTab(self):
+        self.doTest()
+
+
+    def make_charInline():
+        doc, section, styles = RTFTestCase.initializeDoc()
+        p = Paragraph()
+        p.append(Inline('Simple Inline Element'))
+        section.append(p)
+        
+        # Test various element types inside Inline element.
+        p = Paragraph()
+        p.append(Inline('First Inline Element',
+                        TAB,
+                        'Second Inline Element',
+                        RawCode(r'\tab '),
+                        'After tab'
+                       ))
+        section.append(p)
+        return doc
+    make_charInline = staticmethod(make_charInline)
+
+    def test_charInline(self):
+        self.doTest()
+
+
+
+
 class CharacterAPITestCase(RTFTestCase):
 
     def test_text(self):
@@ -99,4 +155,101 @@ class CharacterAPITestCase(RTFTestCase):
 
         t = U('abc')
         t = U('abc', 'def')
+
+    def test_TextPropertySet(self):
+        style = StyleSheet()
+        blue = TextPropertySet(colour=style.Colours.Blue)
+        red = blue.Copy()
+        red.colour = style.Colours.Red
+        
+        # Confirm that the copies are independent objects.
+        assert blue.colour == style.Colours.Blue
+        assert red.colour == style.Colours.Red
+
+    def test_ParagraphPropertySet(self):
+        left = ParagraphPropertySet(ParagraphPropertySet.LEFT)
+        center = left.Copy()
+        center.Alignment = ParagraphPropertySet.CENTER
+        
+        # Confirm that the copies are independent objects.
+        assert left.Alignment == ParagraphPropertySet.LEFT
+        assert center.Alignment == ParagraphPropertySet.CENTER
+
+    def test_ParagraphStyle(self):
+        
+        # Normal constructor.
+        style = StyleSheet()
+        normalText = TextStyle(TextPropertySet(style.Fonts.Arial, 22))
+        ps = ParagraphStyle('Normal', normalText.Copy())
+        assert ps.name == 'Normal'
+
+        # Not sending font to constructor.
+        noStyle = TextStyle(TextPropertySet())
+        self.assertRaises(Exception, ParagraphStyle, 'Normal', noStyle)
+
+        # Not sending size to constructor.
+        fontOnlyStyle = TextStyle(TextPropertySet(style.Fonts.Arial))
+        self.assertRaises(Exception, ParagraphStyle, 'Normal', fontOnlyStyle)
+
+    def test_CustomElementOutsidePara(self):
+
+        # It's just too hard to write a standard test with a custom renderer.
+        doc, section, styles = RTFTestCase.initializeDoc()
+        class CustomClass(object):
+            pass
+        section.append(CustomClass())
+        
+        # Define renderer with custom element support.
+        specialString = "ABC I'm unique"
+        def customElementWriter(renderer, element):
+            renderer._write(specialString)
+        r = Renderer(write_custom_element_callback=customElementWriter)
+        
+        # Render with custom element.
+        result = StringIO()
+        r.Write(doc, result)
+        testData = result.getvalue()
+        result.close()
+        
+        # Confirm generate result has custom rendering.
+        assert specialString in testData
+
+    def test_CustomElementInsidePara(self):
+
+        # It's just too hard to write a standard test with a custom renderer.
+        doc, section, styles = RTFTestCase.initializeDoc()
+        p = Paragraph()
+        p.append('This is a standard paragraph with the default style.')
+        class CustomClass(object):
+            pass
+        p.append(CustomClass())
+        section.append(p)
+        
+        # Define renderer with custom element support.
+        specialString = "ABC I'm unique"
+        def customElementWriter(renderer, element):
+            renderer._write(specialString)
+        r = Renderer(write_custom_element_callback=customElementWriter)
+        
+        # Render with custom element.
+        result = StringIO()
+        r.Write(doc, result)
+        testData = result.getvalue()
+        result.close()
+        
+        # Confirm generate result has custom rendering.
+        assert specialString in testData
+
+    def test_ExceptionOnUnknownElement(self):
+
+        # Create document with unknown element type.
+        doc, section, styles = RTFTestCase.initializeDoc()
+        class CustomClass(object):
+            pass
+        section.append(CustomClass())
+        
+        # Try to render.
+        r = Renderer()
+        result = StringIO()
+        self.assertRaises(Exception, r.Write, doc, result)
 
